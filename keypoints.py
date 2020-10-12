@@ -60,6 +60,9 @@ def main(args):
         json.dump(all_points, f)
     
     # save cropped images
+    if img.shape != img2.shape:
+        print(img.shape, img2.shape)
+        print("not the same")
     save(img, 'out/' + name + '_crop.png')
     save(img2, 'out/' + name2 + '_crop.png')
 

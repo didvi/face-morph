@@ -22,7 +22,7 @@ def morph(img1, img2, keypoints, alpha=0.5):
         img2 (np.ndarray): second image
         keypoints (dict): dictionary of points with keys "first" and "second". Use keypoints.py to generate
     """
-    if img1.shape != img2.shape:
+    if img1.shape[:1] != img2.shape[:1]:
         print("images not same shape")
         return
 
@@ -130,6 +130,9 @@ def main(args):
     # read images
     img = read(args.img)
     img2 = read(args.img2)
+
+    img = img[:, :, :3]
+    img2 = img2[:, :, :3]
 
     # create video
     if args.video:

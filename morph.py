@@ -2,6 +2,8 @@ import argparse
 import json
 import matplotlib
 import skimage.draw
+import imageio 
+import cv2
 
 from scipy.spatial import Delaunay
 
@@ -29,8 +31,8 @@ def morph(img1, img2, keypoints, alpha=0.5):
     key2 = keypoints['second']
 
     averaged_points = [
-        [points[0][0] * (1 - alpha) + points[1][0] * alpha,
-         points[0][1] * (1 - alpha) + points[1][1] * alpha]
+        [points[0][0] * alpha + points[1][0] * (1 - alpha),
+         points[0][1] * alpha + points[1][1] * (1 - alpha)]
         for points in zip(key1, key2)
     ]
 
@@ -75,28 +77,48 @@ def morph(img1, img2, keypoints, alpha=0.5):
 
 
     # debug code TODO remove
-    key1 = np.array(key1)
-    key2 = np.array(key2)
+    # key1 = np.array(key1)
+    # key2 = np.array(key2)
 
-    averaged_points = np.mean([keypoints['first'], keypoints['second']], axis=0)
-    triangulation = Delaunay(averaged_points)
-    plt.triplot(matplotlib.tri.Triangulation(key2.T[0], key2.T[1]))
-    plt.triplot(matplotlib.tri.Triangulation(averaged_points.T[0], averaged_points.T[1]))
-    plt.imshow(img2)
-    plt.show()
+    # averaged_points = np.mean([keypoints['first'], keypoints['second']], axis=0)
+    # triangulation = Delaunay(averaged_points)
+    # plt.triplot(matplotlib.tri.Triangulation(key2.T[0], key2.T[1]))
+    # plt.triplot(matplotlib.tri.Triangulation(averaged_points.T[0], averaged_points.T[1]))
+    # plt.imshow(img2)
+    # plt.show()
 
-    plt.triplot(matplotlib.tri.Triangulation(key1.T[0], key1.T[1]))
-    plt.triplot(matplotlib.tri.Triangulation(averaged_points.T[0], averaged_points.T[1]))
-    plt.imshow(img1)
-    plt.show()
+    # plt.triplot(matplotlib.tri.Triangulation(key1.T[0], key1.T[1]))
+    # plt.triplot(matplotlib.tri.Triangulation(averaged_points.T[0], averaged_points.T[1]))
+    # plt.imshow(img1)
+    # plt.show()
+    return toInt(morphed_img)
 
-    return morphed_img
+def create_video(img1, img2, keypoints, video_name, frame_count=60):
+
+    writer = imageio.get_writer(f'{video_name}.mp4', fps=15)
+
+    alphas = np.linspace(0, 1, frame_count)
+    print(alphas)
+    for alpha in alphas:
+        frame = morph(img1, img2, keypoints, alpha=alpha)
+        writer.append_data(frame)
+        print(f"Alpha: {alpha}")
+        # maybe opencv is good for something
+        cv2.imshow('Frame', frame) 
+        # Press S on keyboard to stop the process 
+        if cv2.waitKey(1) & 0xFF == ord('s'): 
+            break
+    
+    writer.append_data(toInt(img1))
+    writer.close()
+    
+    print("The video was successfully saved") 
 
 def main(args):
     if not args.json:
         # assume json name if not found
-        name = os.path.basename(args.img).split('_')[0]
-        name2 = os.path.basename(args.img2).split('_')[0]
+        name = os.path.basename(args.img).split('.')[0][:-5]
+        name2 = os.path.basename(args.img2).split('.')[0][:-5]
         file_name = f'out/{name}_{name2}.json'
     else:
         file_name = args.json
@@ -109,13 +131,18 @@ def main(args):
     img = read(args.img)
     img2 = read(args.img2)
 
-    # morph image
-    morphed_img = morph(img, img2, all_points)
-    
-    # show and save
-    show(morphed_img)
-    if args.save:
-        save(morphed_img, 'morph_{name}_{name2}.png')
+    # create video
+    if args.video:
+        create_video(img, img2, all_points, f'out/morph_{name}_{name2}')
+        return
+    else:
+        # morph image
+        morphed_img = morph(img, img2, all_points)
+        
+        # show and save
+        show(morphed_img)
+        if args.save:
+            save(morphed_img, f'morph_{name}_{name2}.png')
 
 
 if __name__ == "__main__":
@@ -125,6 +152,7 @@ if __name__ == "__main__":
     ap.add_argument('--json', help='json file containing keypoints')
     ap.add_argument('-s', '--save', type=bool, default=False)
     ap.add_argument("--add", type=bool, default=False, help='add points to existing json file')
+    ap.add_argument('-v', '--video', type=bool, default=False)
     args = ap.parse_args()
 
     main(args)

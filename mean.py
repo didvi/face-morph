@@ -7,6 +7,7 @@ import skimage.transform
 from morph import *
 from helpers import *
 
+# Helper functions for reading data
 def get_by_face_type(type=1, file_ext='.asf'):
     """Gets list of files from imm face db with correct face type
 
@@ -32,14 +33,31 @@ def read_asf(file):
     data = np.genfromtxt(file, skip_header=16, skip_footer=1, usecols=(2, 3))
     return data[:, 0], data[:, 1]
 
-def avg_points(files, width, height):
+def calc_avg_points(files):
     avg_x, avg_y = read_asf(files.pop())
     for f in files:
         x, y = read_asf(f)
         avg_x = np.mean([avg_x, x], axis=0)
         avg_y = np.mean([avg_y, y], axis=0)
-    return avg_x * width, avg_y * height
+    return avg_x, avg_y
 
+def format_points(x, y, width, height):
+    """Unnormalizes points, Adds corner points, and Formats as a numpy array
+
+    Args:
+        x ([arr])
+        y ([arr])
+    
+    Returns:
+        np.ndarray with size + 4
+    """
+    x, y = x * width, y * height
+    x = np.append(x, [1, 1, width - 1, width - 1])
+    y = np.append(y, [1, height - 1, 1, height - 1])
+    return np.column_stack((x, y))
+
+
+# Morph functions
 def morph_to_points(img1, orig_points, target_points):
     """Morphs the image from original keypoints to target keypoints
 
@@ -79,26 +97,16 @@ def morph_to_points(img1, orig_points, target_points):
 
     return toInt(morphed_img)
 
-def avg_morph(img_paths, point_files, avg_x, avg_y):
+def avg_morph(img_paths, point_files, avg_points):
     height, width, c = read(img_paths[0]).shape
-
-    # add corner points
-    avg_x = np.append(avg_x, [1, 1, width - 10, width - 10])
-    avg_y = np.append(avg_y, [1, height - 10, 1, height - 10])
-    avg_points = np.column_stack((avg_x, avg_y))
 
     mean_morphed_img = np.zeros((height, width, c))
     for i, p in zip(img_paths, point_files):
         img = read(i)
         x, y = read_asf(p)
 
-        # normalize
-        x, y = x * width, y * height
-
-        # add corner points
-        x = np.append(x, [1, 1, width - 10, width - 10])
-        y = np.append(y, [1, height - 10, 1, height - 10])
-        points1 = np.column_stack((x, y))
+        # format points
+        points1 = format_points(x, y, width, height)
 
         # morph image to average points
         morphed_img = morph_to_points(img, points1, avg_points)
@@ -110,30 +118,24 @@ def avg_morph(img_paths, point_files, avg_x, avg_y):
     return mean_morphed_img
 
 def main(args):
+    # get file names
     files = get_by_face_type(type=args.type)
     img_paths = get_by_face_type(type=args.type, file_ext='.jpg')
 
+    # read data and calculate average points
     height, width = read(img_paths[0]).shape[:2]
-    avg_x, avg_y = avg_points(files, width=width, height=height)
-    
-    avg_morphed_img = avg_morph(img_paths, files, avg_x, avg_y)
+    avg_x, avg_y = calc_avg_points(files)
+    avg_points = format_points(avg_x, avg_y, width, height)
+
+    # create average image
+    avg_morphed_img = avg_morph(img_paths, files, avg_points)
     
     show(avg_morphed_img)
-
-    if args.show:
-        plt.triplot(matplotlib.tri.Triangulation(avg_x, avg_y))
-        plt.imshow(read(img_paths[args.img_index]))
-        plt.show()
-
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("-t", "--type", default=1)
-    ap.add_argument('-s', '--save', type=bool, default=True)
-    ap.add_argument('-v', '--video', type=bool, default=False)
-    ap.add_argument('-i', '--img_index', default=0)
-    ap.add_argument('-sh', '--show', type=bool, default=False, help='Show average triangulation or not')
     args = ap.parse_args()
 
     main(args)

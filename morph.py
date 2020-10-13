@@ -14,7 +14,7 @@ def compute_transform(tri1, tri2):
     tri2 = np.hstack((tri2, np.ones((3, 1))))
     return np.vstack((tri1.T @ np.linalg.inv(tri2.T), np.array([0, 0, 1])))
 
-def morph(img1, img2, keypoints, alpha=0.5):
+def morph(img1, img2, key1, key2, alpha=0.5):
     """Computes mid-way face of two images according to keypoints
 
     Args:
@@ -27,9 +27,6 @@ def morph(img1, img2, keypoints, alpha=0.5):
         return
 
     # compute triangulation
-    key1 = keypoints['first']
-    key2 = keypoints['second']
-
     averaged_points = [
         [points[0][0] * alpha + points[1][0] * (1 - alpha),
          points[0][1] * alpha + points[1][1] * (1 - alpha)]
@@ -75,7 +72,6 @@ def morph(img1, img2, keypoints, alpha=0.5):
         morphed_img[rr, cc] = morph1 + morph2
 
 
-
     # debug code TODO remove
     # key1 = np.array(key1)
     # key2 = np.array(key2)
@@ -93,16 +89,16 @@ def morph(img1, img2, keypoints, alpha=0.5):
     # plt.show()
     return toInt(morphed_img)
 
-def create_video(img1, img2, keypoints, video_name, frame_count=60):
+def create_video(img1, img2, key1, key2, video_name, frame_count=60):
 
     writer = imageio.get_writer(f'{video_name}.mp4', fps=15)
 
     alphas = np.linspace(0, 1, frame_count)
-    print(alphas)
+
     for alpha in alphas:
-        frame = morph(img1, img2, keypoints, alpha=alpha)
+        frame = morph(img1, img2, key1, key2, alpha=alpha)
         writer.append_data(frame)
-        print(f"Alpha: {alpha}")
+
         # maybe opencv is good for something
         cv2.imshow('Frame', frame) 
         # Press S on keyboard to stop the process 
@@ -126,6 +122,9 @@ def main(args):
     # read keypoints 
     with open(file_name, 'r') as f:
         all_points = json.load(f)
+    
+    key1 = all_points['first']
+    key2 = all_points['second']
 
     # read images
     img = read(args.img)
@@ -136,11 +135,11 @@ def main(args):
 
     # create video
     if args.video:
-        create_video(img, img2, all_points, f'out/morph_{name}_{name2}')
+        create_video(img, img2, key1, key2, f'out/morph_{name}_{name2}')
         return
     else:
         # morph image
-        morphed_img = morph(img, img2, all_points)
+        morphed_img = morph(img, img2, key1, key2)
         
         # show and save
         show(morphed_img)

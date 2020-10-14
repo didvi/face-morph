@@ -60,8 +60,8 @@ def morph(img1, img2, key1, key2, alpha=0.5):
         # shit so it works
         def make_indexable(arr):
             arr[arr < 0] = 0
-            arr[0][arr[0] >= img1.shape[0]] = img1.shape[0] - 1
-            arr[1][arr[1] >= img1.shape[1]] = img1.shape[1] - 1
+            arr[0][arr[0] >= img1.shape[1]] = img1.shape[1] - 1
+            arr[1][arr[1] >= img1.shape[0]] = img1.shape[0] - 1
             return arr.astype(int)
         
         first_indices = make_indexable(first_indices)

@@ -32,20 +32,27 @@ def main(args):
 
     # create average image
     avg_morphed_img = avg_morph(img_paths, files, avg_points)
+    show(avg_morphed_img)
     
-    # morph my face to average image
-    divi_to_mean = morph_to_points(img, points, avg_points)
-    show(divi_to_mean)
-
     # morph average face to my points
     mean_to_divi = morph_to_points(avg_morphed_img, avg_points, points)
     show(mean_to_divi)
 
+    # morph my face to average image
+    divi_to_mean = morph_to_points(img, points, avg_points)
+    show(divi_to_mean)
+
+    # morph with charicature applied
+    charicature_points = args.charic * (avg_points - points) + points
+    divi_to_mean = morph_to_points(img, points, charicature_points)
+    show(divi_to_mean)
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("-t", "--type", type=int, default=1)
     ap.add_argument('-i', '--img', type=str, default='out/divi_large_crop.png')
+    ap.add_argument('-c', '--charic', type=float, default=1.5, help='Amount of extrapolation to create charicature')
+
     args = ap.parse_args()
 
     main(args)

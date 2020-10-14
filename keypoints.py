@@ -17,12 +17,12 @@ def main(args):
     img2 = read(args.img2)
 
     # rescale images to same height
-    height = min(img.shape[1], img2.shape[1])
-    img = rescale(img, height / img.shape[1], multichannel=True)
-    img2 = rescale(img2, height / img2.shape[1], multichannel=True)
+    width = 300
+    img = rescale(img, width / img.shape[0], multichannel=True)
+    img2 = rescale(img2, width / img2.shape[0], multichannel=True)
 
     # crop images to same width 
-    width = min(img.shape[0], img2.shape[0])
+    height = 300
     img = crop(img, (width, height))
     img2 = crop(img2, (width, height))
 

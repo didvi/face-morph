@@ -1,10 +1,16 @@
 import skimage as sk
 import skimage.io as skio
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 
 from math import ceil
 import os 
+
+def show_triangulation(img, points):
+    plt.triplot(matplotlib.tri.Triangulation(points.T[0], points.T[1]))
+    plt.imshow(img)
+    plt.show()
 
 def show(imgs):
     if isinstance(imgs, list):

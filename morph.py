@@ -59,8 +59,9 @@ def morph(img1, img2, key1, key2, alpha=0.5):
     
         # shit so it works
         def make_indexable(arr):
-            arr[0] = (np.clip(arr[0], 0, img1.shape[0] - 1))
-            arr[1] = (np.clip(arr[1], 0, img1.shape[1] - 1))
+            arr[arr < 0] = 0
+            arr[0][arr[0] >= img1.shape[0]] = img1.shape[0] - 1
+            arr[1][arr[1] >= img1.shape[1]] = img1.shape[1] - 1
             return arr.astype(int)
         
         first_indices = make_indexable(first_indices)
@@ -71,22 +72,6 @@ def morph(img1, img2, key1, key2, alpha=0.5):
         morph2 = (1 - alpha) * img2[second_indices[1], second_indices[0]]
         morphed_img[rr, cc] = morph1 + morph2
 
-
-    # debug code TODO remove
-    # key1 = np.array(key1)
-    # key2 = np.array(key2)
-
-    # averaged_points = np.mean([keypoints['first'], keypoints['second']], axis=0)
-    # triangulation = Delaunay(averaged_points)
-    # plt.triplot(matplotlib.tri.Triangulation(key2.T[0], key2.T[1]))
-    # plt.triplot(matplotlib.tri.Triangulation(averaged_points.T[0], averaged_points.T[1]))
-    # plt.imshow(img2)
-    # plt.show()
-
-    # plt.triplot(matplotlib.tri.Triangulation(key1.T[0], key1.T[1]))
-    # plt.triplot(matplotlib.tri.Triangulation(averaged_points.T[0], averaged_points.T[1]))
-    # plt.imshow(img1)
-    # plt.show()
     return toInt(morphed_img)
 
 def create_video(img1, img2, key1, key2, video_name, frame_count=60):

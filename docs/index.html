@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <style>
+        body {
+            margin: auto;
+            text-align: left;
+            font-weight: 300;
+            font-family: 'Open Sans', sans-serif;
+            color: #121212;
+        }
+
+        div.body-class {
+            padding: 100px;
+            width: 1000px;
+            margin: auto;
+            text-align: left;
+            font-weight: 300;
+            font-family: 'Open Sans', sans-serif;
+            color: #121212;
+        }
+
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+
+        code {
+            background-color: lightgrey;
+        }
+    </style>
+    <title>CS 194</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+    <script
+        type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-MML-AM_CHTML">
+        </script>
+</head>
+
+<body>
+    <br />
+    <div class='body-class'>
+        <h1>Face Morphing</h1>
+        <h2>Part 1: Morphing Two Faces</h2>
+        <p>In order to morph two faces together, I labeled keypoints on two images. I then took
+            these associated keypoints and created a triangulation from the mean of these points. The half-way face is
+            then a combination of the two images, morphed to the average triangulation.
+        </p>
+        <p>Here is an example of the triangulation from the keypoints.</p>
+        <img src="../out/divi_triangulation.png" width="300px" />
+        <figcaption align="middle">Keypoints on my face.</figcaption>
+
+        <h3>
+            Results
+        </h3>
+        <p>The results vary very heavily on how well the keypoints were labeled and how many I added to the images. In
+            addition, images that were less aligned and with different hairstyles seemed to look less smooth.</p>
+        <div align="middle">
+            <table>
+                <tr>
+                    <td>
+                        <div>
+                            <img src="../out/divi_crop.png" width="300px" />
+                            <figcaption align="middle">Image 1. My face.</figcaption>
+                        </div>
+                    </td>
+                    <td>
+                        <img src="../out/zap_crop.png"" width=" 300px" />
+                        <figcaption align="middle">Image 2. My brother.</figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div>
+                            <img src="../out/morph_divi_zap.png" width="300px" />
+                            <figcaption align="middle">The halfway face.</figcaption>
+                        </div>
+                    </td>
+                    <td>
+                        <iframe width="560" height="315" src="https://www.youtube.com/embed/35cMUisNc98" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
+                        <figcaption align="middle">Morph video</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <br>
+        <div align="middle">
+            <table>
+                <tr>
+                    <td>
+                        <div>
+                            <img src="../out/divi_margo_crop.png" width="300px" />
+                            <figcaption align="middle">Image 1. My face.</figcaption>
+                        </div>
+                    </td>
+                    <td>
+                        <img src="../out/margo_crop.png"" width=" 300px" />
+                        <figcaption align="middle">Image 2. My friend Margo. People say we look alike.</figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div>
+                            <img src="../out/morph_divi_margo_margo.png" width="300px" />
+                            <figcaption align="middle">The halfway face.</figcaption>
+                        </div>
+                    </td>
+                    <td>
+                        <iframe width="560" height="315" src="https://www.youtube.com/embed/LQ69xbxeELQ" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
+                        <figcaption align="middle">Morph video</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <br>
+
+        <div align="middle">
+            <table>
+                <tr>
+                    <td>
+                        <div>
+                            <img src="../out/divi3_crop.png" width="300px" />
+                            <figcaption align="middle">Image 1. My face.</figcaption>
+                        </div>
+                    </td>
+                    <td>
+                        <img src="../out/zuck_crop.png"" width=" 300px" />
+                        <figcaption align="middle">Image 2. The zuck.</figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div>
+                            <img src="../out/morph_zuck_divi3.png" width="300px" />
+                            <figcaption align="middle">The halfway face.</figcaption>
+                        </div>
+                    </td>
+                    <td>
+                        <iframe width="560" height="315" src="https://www.youtube.com/embed/468cV5YdHg0" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
+                        <figcaption align="middle">Morph video</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <br>
+
+
+        <h2>The Mean Face</h2>
+        <p>The keypoint morphing algorithm also allows us to compute the mean face of a set of images. I created an
+            average image from the Danes dataset. Here is the result.</p>
+        <div align="middle">
+            <table>
+                <tr>
+                    <td>
+                        <div>
+                            <img src="../out/mean_triangulation_on_img.png" width="300px" />
+                            <figcaption align="middle">The mean triangulation of the dataset.</figcaption>
+                        </div>
+                    </td>
+                    <td>
+                        <img src="../out/avg_face_morphed.png"" width=" 300px" />
+                        <figcaption align="middle">The mean face.</figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div>
+                            <img src="../out/guy_morphed_to_average.png" width="300px" />
+                            <figcaption align="middle">A person morphed to the average triangulation.</figcaption>
+                        </div>
+                    </td>
+                    <td>
+                        
+                        <figcaption align="middle">Morphing to the average face triangulation.</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <br>
+    
+        <!-- rand -->
+
+        <div align="middle">
+            <table>
+                <tr>
+                    <td>
+                        <div>
+                            <img src="../out/divi_crop.png" width="300px" />
+                            <figcaption align="middle">Image 1. My face.</figcaption>
+                        </div>
+                    </td>
+                    <td>
+                        <img src="../out/zap_crop.png"" width=" 300px" />
+                        <figcaption align="middle">Image 2.</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <br>
+
+
+    </div>
+</body>
+
+</html>
